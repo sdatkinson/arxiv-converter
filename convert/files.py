@@ -5,7 +5,7 @@
 from __future__ import absolute_import
 import os
 import re
-from collections import OrderedDict
+from subprocess import call
 
 
 # Regular expressions
@@ -14,10 +14,12 @@ _comment_re = re.compile("^\s{0,}%")
 # for \input lines:
 _input_re = re.compile("\\\\input\\{[0-9a-zA-Z\/\_]{1,}(\.tex)?\}")
 # For graphics:
+# Only support eps and pdf for now.  If you want other formats, then we also
+# need to be able to convert them to pdfs.
 _graphics_re = re.compile("\\\\includegraphics" +
                           "(\[[0-9a-zA-Z,\s\-\=\.\\\\]{1,}\])?" +  # [width=stuff]
                           "\{[a-zA-Z0-9\/\_\.]{1,}" +  # Filename
-                          "[(\.eps)(\.pdf)(\.png)(\.jpg)]\}")
+                          "[(\.eps)(\.pdf)]\}")
 _bibliography_re = re.compile("\\\\bibliography\{[a-zA-Z0-9\/\_\.]{1,}\}")
 
 
@@ -25,6 +27,8 @@ def main_file(dir):
     """
     Find the main file
     Currently only supports Main.tex or main.tex
+
+    MUST END IN .tex!
 
     :param dir: project directory
     """
@@ -145,7 +149,21 @@ def remove_comments(lines):
     return [line for line in lines if not line_is_comment(line)]
 
 
-def clean_figs(lines):
+def clean_figs(lines, pdfs_only):
+    """
+    Go through the document, and whenever you see a figure included,
+
+    * Rename that figure to "fig1.pdf", "fig2.pdf", etc
+    * Make a note of the new name (with the old type).  We will convert eps'es
+        to pdfs later.
+
+    :param lines: The tex document
+    :type lines: list of strings
+    :param pdfs_only: if true, require that all figures end up as pdfs.
+    :type pdfs_only: bool
+
+    :return: revised tex document, list of new figures.
+    """
     fig_name_new_list = []
     for i in range(len(lines)):
         line = lines[i]
@@ -154,21 +172,54 @@ def clean_figs(lines):
             fig_count = len(fig_name_new_list) + 1
             j = g_file_from.rfind(".")
             fig_type = g_file_from[j + 1:]
-            fig_name_old = g_file_from[:j]
-            fig_name_new = "fig{}.{}".format(fig_count, fig_type)
-            line = line.replace(g_file_from, fig_name_new)
+            fig_name_new_old_type = "fig{}.{}".format(fig_count, fig_type)
+            fig_name_new_new_type = "fig{}.pdf".format(fig_count) if pdfs_only \
+                else fig_name_new_old_type
+            line = line.replace(g_file_from, fig_name_new_new_type)
             lines[i] = line
-            fig_name_new_list += [fig_name_new]
+            fig_name_new_list += [fig_name_new_old_type]
     return lines, fig_name_new_list
 
 
-def remove_hyperref(lines):
+def epss_to_pdfs(dest_dir, fig_files):
+    """
+    Convert any non-pdfs to pdfs.
+
+    :param dest_dir:
+    :param fig_files:
+    :return:
+    """
+    print("Converting figures to pdfs")
+    for i in range(len(fig_files)):
+        f0 = fig_files[i]
+        print("{} / {}".format(i + 1, len(fig_files)))
+        if not f0[-4:] == ".pdf":
+            call(["epstopdf", dest_dir + "/" + f0])
+            os.remove(dest_dir + "/" + f0)
+            fig_files[i] = f0[:-4] + ".pdf"
+    return fig_files
+
+
+def insert_bbl(lines, bbl_fname):
+    bbl_lines = read_file(bbl_fname)
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if get_bibliography_file(line):
+            lines = lines[:i] + ["% Added from bbl:\n"] + bbl_lines + \
+                    lines[i + 1:]
+        else:
+            i += 1
+    return lines
+
+
+def comment_hyperref(lines_in):
+    lines = lines_in.copy()
     i = 0
     while i < len(lines):
         if lines[i].strip() == "\\usepackage{hyperref}":
-            lines = lines[:i] + lines[i + 1:]
-        else:
-            i += 1
+            lines[i] = "% " + lines[i]
+        i += 1
     return lines
 
 
