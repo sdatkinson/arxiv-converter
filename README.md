@@ -1,4 +1,6 @@
 # arxiv-converter #
+[![CircleCI](https://circleci.com/gh/sdatkinson/arxiv-converter.svg?style=svg)](https://circleci.com/gh/sdatkinson/arxiv-converter)
+
 Take LaTeX projects and convert them to a version that is arXiv-ready
 If your project is in a directory `my-paper`, this creates an arXiv-ready
 version in `my-paper-converted`
