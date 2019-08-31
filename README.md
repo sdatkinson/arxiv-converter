@@ -1,9 +1,16 @@
 # arxiv-converter #
 [![CircleCI](https://circleci.com/gh/sdatkinson/arxiv-converter.svg?style=svg)](https://circleci.com/gh/sdatkinson/arxiv-converter)
+[![codecov](https://codecov.io/gh/sdatkinson/arxiv-converter/branch/master/graph/badge.svg)](https://codecov.io/gh/sdatkinson/arxiv-converter)
 
-Take LaTeX projects and convert them to a version that is arXiv-ready
+Take LaTeX projects and convert them to a version that is arXiv-ready.
 If your project is in a directory `my-paper`, this creates an arXiv-ready
 version in `my-paper-converted`
+
+## Usage ##
+When `my-paper` is a directory containing your project, just do
+```
+python main.py path/to/your/my-paper
+```
 
 ## Requirements ##
 * Need to be able to call pdflatex and bibtex with `subprocess.call()`
