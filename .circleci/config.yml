@@ -54,9 +54,3 @@ jobs:
           command: |
             . venv/bin/activate
             bash <(curl -s https://codecov.io/bash) -t ${CODECOV_TOKEN}
-      
-      - run:
-          name: Push to Codecov
-          command: |
-            . venv/bin/activate
-            codecov
