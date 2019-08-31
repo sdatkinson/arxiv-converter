@@ -50,6 +50,6 @@ jobs:
           path: htmlcov
 
       - run:
-        name: Upload coverage report
-        command: |
-          bash <(curl -s https://codecov.io/bash)
+          name: Upload coverage report
+          command: |
+            bash <(curl -s https://codecov.io/bash)
