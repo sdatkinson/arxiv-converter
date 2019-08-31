@@ -16,9 +16,7 @@ Converter for arXiv
 """
 
 
-if __name__ == "__main__":
-    argc = len(sys.argv)
-
+def _parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("src_dir", help="Home directory for the project")
     parser.add_argument(
@@ -33,7 +31,14 @@ if __name__ == "__main__":
     # parser.add_argument("--pdf-figs-only", help="convert all figures to pdf",
     #                     action="store_true")
     args = parser.parse_args()
-    args.dest_dir = args.dest_dir or args.src_dir + "-converted"
+    if args.dest_dir is None:
+        args.dest_dir = args.src_dir + "-converted"
+    
+    return args
+
+
+if __name__ == "__main__":
+    args = _parse_args()
 
     # ===
 
