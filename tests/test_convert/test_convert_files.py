@@ -12,8 +12,16 @@ sys.path.append(os.path.join(_file_dir, "..", ".."))
 
 import convert
 
+_paper_dir = os.path.join(_file_dir, "mypaper")
+
 
 def test_main_file():
-    res = convert.main_file(os.path.join(_file_dir, "mypaper"))
+    res = convert.main_file(_paper_dir)
     assert isinstance(res, str)
     assert res == "main.tex"
+
+
+def test_read_file():
+    lines = convert.read_file(os.path.join(_paper_dir, "section.tex"))
+    assert isinstance(lines, list)
+    assert all([isinstance(l, str) for l in lines])

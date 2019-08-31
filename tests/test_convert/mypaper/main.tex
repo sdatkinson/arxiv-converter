@@ -1,0 +1,29 @@
+\documentclass[12pt]{article}
+\input{Preamble.tex}
+
+\begin{document}
+\begin{frontmatter}
+
+\title{Test article}
+\author[ad1]{Steven Atkinson}
+\ead{satkinso@nd.edu}
+\author[ad1]{Nicholas Zabaras\corref{cor}}
+\ead{nzabaras@gmail.com}
+\ead[url]{https://cics.nd.edu/}
+\cortext[cor]{Corresponding author}
+\address[ad1]{
+    Center for Informatics and Computational Science \\ 
+    University of Notre Dame \\
+    311 I Cushing Hall, 
+    Notre Dame, IN 46556, USA
+}
+\date{\today}
+\end{frontmatter}
+
+%=====================================================
+
+\input{section.tex}
+\section*{References}
+\bibliography{References}
+
+\end{document}
