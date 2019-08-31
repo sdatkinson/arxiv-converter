@@ -44,10 +44,7 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
-            pytest --cov=convert tests/
+            pytest --cov-report html --cov=convert tests/
 
       - store_artifacts:
           path: htmlcov
-
-      - store_artifacts:
-          path: test-reports
