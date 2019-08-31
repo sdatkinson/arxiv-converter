@@ -48,3 +48,8 @@ jobs:
 
       - store_artifacts:
           path: htmlcov
+
+      - run:
+        name: Upload coverage report
+        command: |
+          bash <(curl -s https://codecov.io/bash)
