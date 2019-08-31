@@ -42,6 +42,9 @@ def main_file(dir):
 
 
 def read_file(fname):
+    """
+    Get a file into a list of strings (one entry=one line)
+    """
     with open(fname) as f:
         lines = f.readlines()
     return lines
