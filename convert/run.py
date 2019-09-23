@@ -86,8 +86,10 @@ def run():
     # Move the bib:
     n_bibs = len(src_files["bib"])
     if n_bibs == 1:
-        shutil.copyfile(args.src_dir + "/" + src_files["bib"][0],
-                        args.dest_dir + "/" + src_files["bib"][0])
+        bib_dest = args.dest_dir + "/" + src_files["bib"][0]
+        if not os.path.isdir(os.path.dirname(bib_dest)): 
+            os.makedirs(os.path.dirname(bib_dest))
+        shutil.copyfile(args.src_dir + "/" + src_files["bib"][0], bib_dest)
     elif n_bibs > 1:
         RuntimeError("More than 1 bib found?")
 
