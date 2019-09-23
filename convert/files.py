@@ -21,6 +21,10 @@ _graphics_re = re.compile("\\\\includegraphics" +
                           "\{[a-zA-Z0-9\/\_\.]{1,}" +  # Filename
                           "[(\.eps)(\.pdf)]\}")
 _bibliography_re = re.compile("\\\\bibliography\{[a-zA-Z0-9\/\_\.]{1,}\}")
+_sty_re = re.compile("\\\\usepackage" +
+                          "(\[[0-9a-zA-Z,\s\-\=\.\\\\]{1,}\])?" +  # [args,stuff]
+                          "\{[a-zA-Z0-9\/\_\.]{1,}" +  # Filename
+                          "(\.sty)?\}")
 
 
 def main_file(dir):
@@ -91,6 +95,31 @@ def get_bibliography_file(line):
         return None
 
 
+def _get_sty_file(line, d):
+    """
+    e.g. 
+    \\usepackage[args]{neurips_yyyy}
+    AND
+    There's a neurips_yyyy.sty file in the same directory as main.tex
+
+    :param line: (str) line to be searched
+    :param d: directory containing the .tex file from which line was read.
+
+    :return: The .sty file (if it exists) or None (if not)
+    """
+
+    if not line_is_comment(line) and re.search(_sty_re, line):
+        sty_string = re.search(_sty_re, line).string.strip()
+        new_file = sty_string[sty_string.find("{") + 1: -1]
+        if not new_file[-4:] == ".sty":
+            new_file += ".sty"
+        if os.path.isfile(os.path.join(d, new_file)):
+            return new_file
+    
+    # Not a .sty line or didn't find the file locally:
+    return None
+
+
 def needed_files(dir, current_file):
     """
     Get the files used by the current file and append them to the list.
@@ -99,12 +128,12 @@ def needed_files(dir, current_file):
     * \includegraphics[width=3]{MyFigure.eps}  # eps, pdf, png, jpg
     Assumes that the \input{} command is all on one line the ONLY thing on its line.
 
+    :param dir: Directory where current_file lives
     :param current_file: the file to search through
-    :param files: Current list of files
     """
 
     lines = read_file(dir + "/" + current_file)
-    file_set = {"figs": [], "bib": []}
+    file_set = {"figs": [], "bib": [], "sty": []}
     for line in lines:
         # Search for \input calls and descend recursively
         inputted_file = get_input_file(line)
@@ -116,9 +145,15 @@ def needed_files(dir, current_file):
         graphics_file = get_graphics_file(line)
         if graphics_file:
             file_set["figs"] += [graphics_file]
+        # Is it the bibliography file
         bibliography_file = get_bibliography_file(line)
         if bibliography_file:
             file_set["bib"] += [bibliography_file]
+        # Is it a local .sty file
+        sty_file = _get_sty_file(line, dir)
+        if sty_file:
+            file_set["sty"].append(sty_file)
+        
     return file_set
 
 

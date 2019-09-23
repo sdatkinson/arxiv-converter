@@ -75,6 +75,11 @@ def run():
     files.write_lines_to(tex_lines_with_href, args.dest_dir + "/" +
                            main_file_with_href)
 
+    # Move .sty files:
+    for f in src_files["sty"]:
+        shutil.copyfile(os.path.join(args.src_dir, f),
+                        os.path.join(args.dest_dir, f))
+
     # Move the figures:
     for fig_from, fig_to in zip(src_files["figs"], dest_fig_files):
         shutil.copyfile(args.src_dir + "/" + fig_from,
